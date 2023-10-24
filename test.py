@@ -33,12 +33,20 @@ def getFollowers(driver):
         user.click()
 
         followersBut = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, "/html/body/div[2]/div/div/div[2]/div/div/div/div[1]/div[1]/div[2]/div[2]/section/main/div/header/section/ul/li[2]/a")))
+        followersNum = driver.find_element(By.XPATH, "/html/body/div[2]/div/div/div[2]/div/div/div/div[1]/div[1]/div[2]/div[2]/section/main/div/header/section/ul/li[2]/a/span/span").text
+        print(followersNum)
+
         followersBut.click()
 
 
         followersModal = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, "/html/body/div[5]/div[1]/div/div[2]/div/div/div/div/div[2]/div/div/div[3]")))
-        while True:
+        divInt = 0
+        while divInt != followersNum:
             driver.execute_script("arguments[0].scrollTop = arguments[0].scrollHeight;", followersModal)
+            divExt = driver.find_element(By.XPATH, "/html/body/div[5]/div[1]/div/div[2]/div/div/div/div/div[2]/div/div/div[3]/div[1]/div")
+            divInt = divExt.find_elements(By.TAG_NAME, "div")
+            print(len(divInt))
+            break
 
 
         #TODO Iterar pela lista de seguidores
