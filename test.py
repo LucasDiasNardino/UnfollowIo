@@ -5,6 +5,7 @@ from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
 
+import time
 
 
 def login(driver):
@@ -39,15 +40,23 @@ def getFollowers(driver):
         followersBut.click()
 
 
-        followersModal = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, "/html/body/div[5]/div[1]/div/div[2]/div/div/div/div/div[2]/div/div/div[3]")))
-        divInt = 0
-        while divInt != followersNum:
-            driver.execute_script("arguments[0].scrollTop = arguments[0].scrollHeight;", followersModal)
-            divExt = driver.find_element(By.XPATH, "/html/body/div[5]/div[1]/div/div[2]/div/div/div/div/div[2]/div/div/div[3]/div[1]/div")
-            divInt = divExt.find_elements(By.TAG_NAME, "div")
-            print(len(divInt))
-            break
+        followersModal = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CLASS_NAME, '_aano')))
 
+        while True:
+            driver.execute_script("arguments[0].scrollTop = arguments[0].scrollHeight;", followersModal)
+            time.sleep(1)
+            elements = followersModal.find_elements(By.TAG_NAME, "div")
+
+            # TODO Achar elemento correto para parar o codigo
+
+            print("{}/{}".format(len(elements), followersNum))
+            
+            if len(elements) == int(followersNum):
+                break
+
+
+            #/html/body/div[5]/div[1]/div/div[2]/div/div/div/div/div[2]/div/div/div[3]/div[1]/div/div[1]
+            #/html/body/div[5]/div[1]/div/div[2]/div/div/div/div/div[2]/div/div/div[3]/div[1]/div/div[2]
 
         #TODO Iterar pela lista de seguidores
         # depois iterar pelas divs do seguidor
