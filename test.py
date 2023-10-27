@@ -27,11 +27,13 @@ def login(driver):
     notNow2 = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, "/html/body/div[3]/div[1]/div/div[2]/div/div/div/div/div[2]/div/div/div[3]/button[2]")))
     notNow2.click()
 
+    user = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, "/html/body/div[2]/div/div/div[2]/div/div/div/div[1]/div[1]/div[1]/div/div/div/div/div[2]/div[8]/div/span")))
+    user.click()
+
 def getFollowers(driver):
     try:
         driver.set_page_load_timeout(30)
-        user = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, "/html/body/div[2]/div/div/div[2]/div/div/div/div[1]/div[1]/div[1]/div/div/div/div/div[2]/div[8]/div/span")))
-        user.click()
+        
 
         followersBut = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, "/html/body/div[2]/div/div/div[2]/div/div/div/div[1]/div[1]/div[2]/div[2]/section/main/div/header/section/ul/li[2]/a")))
         followersNum = driver.find_element(By.XPATH, "/html/body/div[2]/div/div/div[2]/div/div/div/div[1]/div[1]/div[2]/div[2]/section/main/div/header/section/ul/li[2]/a/span/span").text
@@ -40,44 +42,80 @@ def getFollowers(driver):
         followersBut.click()
 
 
-        followersModal = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CLASS_NAME, '_aano')))
+        scroll = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CLASS_NAME, '_aano')))
+    
+        i = 1
+        users = []
 
-        while True:
-            driver.execute_script("arguments[0].scrollTop = arguments[0].scrollHeight;", followersModal)
-            time.sleep(1)
-            elements = followersModal.find_elements(By.TAG_NAME, "div")
-
-            # TODO Achar elemento correto para parar o codigo
-
-            print("{}/{}".format(len(elements), followersNum))
+        while len(users) <= int(followersNum):
             
-            if len(elements) == int(followersNum):
-                break
+            driver.execute_script("arguments[0].scrollTop = arguments[0].scrollHeight;", scroll)
+            time.sleep(1)
 
+            user = WebDriverWait(driver, 10).until(EC.presence_of_all_elements_located((By.XPATH, "html/body/div[5]/div[1]/div/div[2]/div/div/div/div/div[2]/div/div/div[3]/div[1]/div/div[{}]".format(i))))
+            # TODO Achar elemento correto para parar o codigo
+          
+            users.extend(user)
 
-            #/html/body/div[5]/div[1]/div/div[2]/div/div/div/div/div[2]/div/div/div[3]/div[1]/div/div[1]
-            #/html/body/div[5]/div[1]/div/div[2]/div/div/div/div/div[2]/div/div/div[3]/div[1]/div/div[2]
+            print("{}/{}".format(len(users), followersNum))
+            
+            i += 1
 
-        #TODO Iterar pela lista de seguidores
-        # depois iterar pelas divs do seguidor
-        # até encontrar o span que contém o nome
+        for user in users:
+            print(user.text.split('\n')[0])
 
-        followersList = []
+        close = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.CLASS_NAME, "x1lliihq x1n2onr6 x5n08af")))
+        close.click()
 
-        # for item in followersModal:
-        #     followersList.append(item)
-        
-        # for user in followersList:
-        #     userName = WebDriverWait.until(EC.element_to_be_clickable((By.XPATH, "/html/body/div[6]/div[1]/div/div[2]/div/div/div/div/div[2]/div/div/div[3]/div[1]/div/div[1]/div/div/div/div[2]/div/div/span/span")))
-        #     print(userName.text)
+        return users
 
     except TimeoutException:
         print("Timeout")
 
+def getFollowing(driver):
+    try:
+
+        driver.set_page_load_timeout(30)
+
+
+        followingBut = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, "/html/body/div[2]/div/div/div[2]/div/div/div/div[1]/div[1]/div[2]/div[2]/section/main/div/header/section/ul/li[3]/a/span/span")))
+        followingNum = driver.find_element(By.XPATH, "/html/body/div[2]/div/div/div[2]/div/div/div/div[1]/div[1]/div[2]/div[2]/section/main/div/header/section/ul/li[3]/a/span/span").text
+        print(followingNum)
+
+        followingBut.click()
+
+
+        scroll = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CLASS_NAME, '_aano')))
     
+        i = 1
+        j = 4
+        users = []
 
+        while len(users) <= 4:
+            
+            driver.execute_script("arguments[0].scrollTop = arguments[0].scrollHeight;", scroll)
+            time.sleep(1)
 
+            user = WebDriverWait(driver, 10).until(EC.presence_of_all_elements_located((By.XPATH, "/html/body/div[{j}]/div[1]/div/div[2]/div/div/div/div/div[2]/div/div/div[4]/div[1]/div/div[{}]".format(j,i))))
+            # TODO Achar elemento correto para parar o codigo
 
+            #/html/body/div[4]/div[1]/div/div[2]/div/div/div/div/div[2]/div/div/div[4]/div[1]/div/div[1]
+            #/html/body/div[5]/div[1]/div/div[2]/div/div/div/div/div[2]/div/div/div[4]/div[1]/div/div[2]
+
+            users.extend(user)
+
+            print("{}/{}".format(len(users), followingNum))
+            
+            i += 1
+            j += 1
+
+        for user in users:
+            print(user.text.split('\n')[0])
+
+        return users
+
+    except TimeoutException:
+        print("Timeout")
 
 def launch():
 
@@ -85,7 +123,8 @@ def launch():
     driver.get("https://www.instagram.com/accounts/login/")
 
     login(driver)
-    getFollowers(driver)
+    #getFollowers(driver)
+    getFollowing(driver)
 
     while(True):
         pass
