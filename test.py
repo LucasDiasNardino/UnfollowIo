@@ -16,7 +16,7 @@ def login(driver):
     password = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, "/html/body/div[2]/div/div/div[2]/div/div/div/div[1]/section/main/div/div/div[1]/div[2]/form/div/div[2]/div/label/input")))
     password.click()
     #passwEntry = str(input("Enter your password: "))
-    password.send_keys('d9m5a2003')
+    password.send_keys('D9m5a2003')
 
     ok = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, "/html/body/div[2]/div/div/div[2]/div/div/div/div[1]/section/main/div/div/div[1]/div[2]/form/div/div[3]")))
     ok.click()
@@ -42,32 +42,106 @@ def getFollowers(driver):
         followersBut.click()
 
 
-        scroll = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CLASS_NAME, '_aano')))
-    
-        i = 1
-        users = []
+        # Aguardar até que a div "aano" seja carregada (ajuste o seletor conforme necessário)
+        divAano = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CLASS_NAME, '_aano')))
 
+        # Encontrar a div "A" dentro da div "aano"
+        divA = divAano.find_element(By.XPATH, "./div")
+
+        # Inicializar a quantidade inicial de divsB
+        divsB_anterior = len(divA.find_elements(By.XPATH, "./div"))
+
+        print(f"A quantidade de divs dentro da div B é: {divsB_anterior}")
+
+        i=1
+
+        users=[]
+        #users.extend(divA.find_elements(By.XPATH, "./div"))
+        stringOr = ''
         while len(users) <= int(followersNum):
+            # Rolar até o final da página
+            driver.execute_script("arguments[0].scrollTop = arguments[0].scrollHeight;", divA)
+
+            # Aguardar um curto período de tempo para dar tempo às novas divs de carregarem
+            driver.implicitly_wait(2)
+
+            #users.extend(divA.find_elements(By.XPATH, "./div"))
+            string = divA.find_elements(By.XPATH, "./div")
             
-            driver.execute_script("arguments[0].scrollTop = arguments[0].scrollHeight;", scroll)
-            time.sleep(1)
+            if stringOr == string:
+                break
 
-            user = WebDriverWait(driver, 10).until(EC.presence_of_all_elements_located((By.XPATH, "html/body/div[5]/div[1]/div/div[2]/div/div/div/div/div[2]/div/div/div[3]/div[1]/div/div[{}]".format(i))))
-            # TODO Achar elemento correto para parar o codigo
-          
-            users.extend(user)
+            stringOr = string
 
-            print("{}/{}".format(len(users), followersNum))
+            #elementText = element.text.split('\n')[0]
+
+            #users.extend(elementText)
             
             i += 1
 
+        print(stringOr)
+        
+        print(f"A quantidade de users  é: {int(followersNum)}")
+        
+
+        stringOr = stringOr[0].text.split('\n')
+
+        print(stringOr)
+
+
+
+        list = eval(stringOr)
+
+        usernames = []
+
+        #user = list[0] lookasnard
+        #remover = list[1] Remover
+        #user = list[2] oa.ganja.tele
+        #ponto = list[3] .
+        #seguir = list[4] Seguir
+        #user = list[5] porto alegre ganja delivery
+
+        usernames.extend(list[0])
+
+        
+
+
+
+
         for user in users:
             print(user.text.split('\n')[0])
+            usernames.append(user.text.split('\n')[0])
 
-        close = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.CLASS_NAME, "x1lliihq x1n2onr6 x5n08af")))
-        close.click()
+        for username in usernames:
+            print(username)
+        
 
-        return users
+        
+    
+        # i = 1
+        # users = []
+
+        # while len(users) <= int(followersNum):
+            
+        #     driver.execute_script("arguments[0].scrollTop = arguments[0].scrollHeight;", scroll)
+        #     time.sleep(1)
+
+        #     user = WebDriverWait(driver, 10).until(EC.presence_of_all_elements_located((By.XPATH, "html/body/div[5]/div[1]/div/div[2]/div/div/div/div/div[2]/div/div/div[3]/div[1]/div/div[{}]".format(i))))
+        #     # TODO Achar elemento correto para parar o codigo
+          
+        #     users.extend(user)
+
+        #     print("{}/{}".format(len(users), followersNum))
+            
+        #     i += 1
+
+        # for user in users:
+        #     print(user.text.split('\n')[0])
+
+        # close = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.CLASS_NAME, "x1lliihq x1n2onr6 x5n08af")))
+        # close.click()
+
+        # return users
 
     except TimeoutException:
         print("Timeout")
@@ -123,8 +197,8 @@ def launch():
     driver.get("https://www.instagram.com/accounts/login/")
 
     login(driver)
-    #getFollowers(driver)
-    getFollowing(driver)
+    getFollowers(driver)
+    #getFollowing(driver)
 
     while(True):
         pass
